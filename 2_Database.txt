@@ -1,0 +1,5 @@
+admin
+1234
+
+python manage.py makemigrations // เพิ่มข้อมูล ใน # myapp/models.py
+python manage.py migrate

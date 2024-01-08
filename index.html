@@ -1,0 +1,235 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Bootstrap Example</title>
+
+    <!-- Add Bootstrap CSS link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div id="app" class="container mt-5">
+        <h2>Student List</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th>Grade</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="student in datafetch" :key="student.id">
+                    <td>{{ student.id }}</td>
+                    <td>
+                        <template v-if="student.id !== tableID">
+                            {{ student.name }}
+                        </template>
+                        <template v-else>
+                            <input v-model="TableData.name" class="form-control" required>
+                        </template>
+                    </td>
+
+                    <td>
+                        <template v-if="student.id !== tableID">
+                            {{ student.score }}
+                        </template>
+                        <template v-else>
+                            <input v-model="TableData.score" class="form-control" required>
+                        </template>
+                    </td>
+
+                    <td>
+                        <template v-if="student.id !== tableID">
+                            {{ student.grade }}
+                        </template>
+                        <template v-else>
+                            <input v-model="TableData.grade" class="form-control" required>
+                        </template>
+                    </td>
+
+                    <td>
+                        <template v-if="student.id !== tableID">
+                            <button class="btn btn-warning btn-sm" @click="startEdit(student.id)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @click="deletestudent(student.id)">Delete</button>
+                        </template>
+                        <template v-else>
+                            <button class="btn btn-success btn-sm" @click="updatestudent">Update</button>
+                            <button class="btn btn-secondary btn-sm" @click="cancelEdit">Cancel</button>
+                        </template>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <form @submit.prevent="postData" class="mt-4">
+            <h2 class="mb-3">Add Student</h2>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" v-model="formData.name" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="score">Score:</label>
+                <input type="number" id="score" v-model="formData.score" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="grade">Grade:</label>
+                <input type="text" id="grade" v-model="formData.grade" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Student</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                // apidata: [],
+                datafetch: [],
+                tableID: null,
+                TableData: {
+                    name: '',
+                    score: 0,
+                    grade: ''
+                },
+                formData: {
+                    name: '',
+                    score: 0,
+                    grade: ''
+                }
+            },
+            mounted() {
+                this.getData();
+            },
+            methods: {
+                async submitstudentForm() {
+                    console.log('add')
+                    // await this.postData();
+                    if (this.inputDataName) {
+                        if (this.tableID !== null) {
+                            await this.updatestudent();
+                        } else {
+                            console.log('add')
+                            await this.postData();
+                        }
+                    }
+                },
+                async getData() {
+                    const url = 'http://127.0.0.1:8000/get_api/';
+
+                    try {
+                        const response = await fetch(url);
+                        this.datafetch = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching data:', error);
+                    }
+                },
+                async postData() {
+                    const url = 'http://127.0.0.1:8000/create_api/';
+
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(this.formData),
+                        });
+                        const responseData = await response.json();
+                        console.log(responseData);
+                        // Clear form after successful submission
+                        this.formData = {
+                            name: '',
+                            score: 0,
+                            grade: ''
+                        };
+                        // Fetch data again to update the displayed data
+                        this.getData();
+                    } catch (error) {
+                        console.error('Error posting data:', error);
+                    }
+                },
+                async updatestudent() {
+                    const url = `http://127.0.0.1:8000/update_api/${this.tableID}/`;
+                    try {
+                        const response = await fetch(url, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(this.TableData),
+                        });
+                        const responseData = await response.json();
+                        // Clear form after successful submission
+                        this.TableData = {
+                            name: '',
+                            score: 0,
+                            grade: ''
+                        };
+                        // Fetch data again to update the displayed data
+                        this.getData();
+                        this.cancelEdit();
+                    } catch (error) {
+                        console.error('Error posting data:', error);
+                    }
+                },
+                async deletestudent(dataID) {
+                    // แสดงหน้าต่างยืนยัน
+                    const isConfirmed = window.confirm('Are you sure you want to delete this student?');
+                    // ถ้าผู้ใช้กด OK (isConfirmed เป็น true)
+                    if (isConfirmed) {
+                        try {
+                            const url = `http://127.0.0.1:8000/delete_api/${dataID}/`;
+                            const response = await fetch(url, {
+                                method: 'DELETE'
+                            });
+                            // ถ้าลบสำเร็จ
+                            if (response.ok) {
+                                const responseData = await response.json();
+                                this.getData();
+                            } else {
+                                console.error('Error deleting data:', response.statusText);
+                            }
+                        } catch (error) {
+                            console.error('Error deleting data:', error);
+                        }
+                    } else {
+                        // ถ้าผู้ใช้กด Cancel
+                        console.log('Deletion canceled');
+                    }
+                },
+                startEdit(dataID) {
+                    this.tableID = dataID;
+                    const DataRecordID = this.datafetch.find(student => student.id === dataID);
+                    console.log(DataRecordID);
+                    this.TableData = {
+                        name: DataRecordID.name,
+                        score: DataRecordID.score,
+                        grade: DataRecordID.grade
+                    };
+                },
+                cancelEdit() {
+                    // Reset the editing state
+                    this.tableID = null;
+                    this.TableData = {
+                        name: '',
+                        score: 0,
+                        grade: ''
+                    };
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

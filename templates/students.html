@@ -1,0 +1,15 @@
+<!-- myapp/templates/students.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student List</title>
+</head>
+<body>
+    <h1>Student List</h1>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.name }} - Score: {{ student.score }}, Grade: {{ student.grade }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

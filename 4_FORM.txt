@@ -1,0 +1,49 @@
+# myapp/forms.py
+from django import forms
+from .models import Student
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['name', 'score', 'grade']
+
+
+
+# myapp/views.py
+from django.shortcuts import render, redirect
+from .forms import StudentForm
+
+def add_student(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('display_students')  # ไปที่หน้าแสดงข้อมูลนักเรียนหลังจากเพิ่มข้อมูลเสร็จ
+    else:
+        form = StudentForm()
+    return render(request, 'add_student.html', {'form': form})
+
+
+<!-- myapp/templates/add_student.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Student</title>
+</head>
+<body>
+    <h1>Add Student</h1>
+    <form method="post" action="{% url 'add_student' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Student</button>
+    </form>
+</body>
+</html>
+
+# myapp/urls.py
+from django.urls import path
+from .views import add_student
+
+urlpatterns = [
+    path('add_student/', add_student, name='add_student'),
+]
