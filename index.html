@@ -87,6 +87,21 @@
 
             <button type="submit" class="btn btn-primary">Add Student</button>
         </form>
+        <hr>
+
+        <button type="button" id="apipost_jsonload" @click="apipost_jsonload" class="btn btn-primary">POSTMAN
+            RAW</button>
+        <button type="button" id="apipost_formdata" @click="apipost_formdata" class="btn btn-primary">POSTMAN FORM
+            DATA</button>
+        <br>
+        <hr>
+        <button type="button" id="check_token" @click="check_token" class="btn btn-primary">check_token</button>
+        <hr>
+        <form @submit.prevent="uploadImage">
+            <input type="file" @change="handleFileChange">
+            <button type="submit">Upload</button>
+        </form>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
@@ -106,7 +121,15 @@
                     name: '',
                     score: 0,
                     grade: ''
-                }
+                },
+                apidata: [{
+                    method: "GET_NEW",
+                    queryID: "SC00001",
+                    condition: "0000",
+                    tbanme: "0000",
+                    listdata: [null]
+                }],
+                image: null
             },
             mounted() {
                 this.getData();
@@ -226,6 +249,100 @@
                         score: 0,
                         grade: ''
                     };
+                },
+
+                ////////////// RAW //////////////
+                async apipost_jsonload() {
+                    const url = 'http://127.0.0.1:8000/apipost_jsonload/';
+                    try {
+                        //////////////////////   data_from_api = json.loads(request.body)  /////////////////
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(this.apidata),
+                        });
+                        const responseData = await response.json();
+                        console.log(responseData);
+                    } catch (error) {
+                        console.error('Error posting data:', error);
+                    }
+                },
+                ////////////// FORM_DATA //////////////
+                async apipost_formdata() {
+                    const url = 'http://127.0.0.1:8000/apipost_formdata/';
+                    try {
+                        ////////////////////////////// ส่งแบบ apidata = request.POST.get('apidata', '')
+                        var FormatData = new FormData();
+                        FormatData.append('apidata', JSON.stringify(this.apidata));
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            // mode: "cors",
+                            headers: {
+                                'Authorization': 'Bearer wqdwqdwqd654146',
+                                'Genarate-Django-KEY': '052571QADWFER',
+                            },
+                            body: FormatData,
+                        });
+
+                        const responseData = await response.json();
+                        console.log(responseData);
+
+                    } catch (error) {
+                        console.error('Error posting data:', error);
+                    }
+                },
+                ////////////// TEST HEADDER //////////////
+                async check_token() {
+                    const accessToken = '1234567890'; // เปลี่ยนเป็น Access Token ของคุณ
+                    fetch('http://127.0.0.1:8000/format_token/', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Genarate-Django-KEY': '052571QADWFER',
+                        },
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data);
+                        })
+                        .catch(error => {
+                            console.error('There was a problem with your fetch operation:', error);
+                        });
+
+                },
+                ///////////////////////////////// UPLOAD //////////////////////////
+                handleFileChange(event) {
+                    this.image = event.target.files[0];
+                },
+                uploadImage() {
+                    const formData = new FormData();
+                    formData.append('image', this.image);
+
+                    fetch('/upload_image/', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data);
+                            // Handle response data as needed
+                        })
+                        .catch(error => {
+                            console.error('There was a problem with your fetch operation:', error);
+                        });
                 }
             }
         });

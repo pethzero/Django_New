@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path
 from myapp.views import *
 
+from django.conf.urls.static import static
+from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name='hello_world'),  # เปลี่ยนเป็น path ว่าง
@@ -43,6 +45,13 @@ urlpatterns = [
     
     # /////////////////// NEW ////////////////////
     path('post_formapi/', post_formapi, name='post_formapi'),
+    path('apipost_jsonload/', apipost_jsonload, name='apipost_jsonload'),
+    path('apipost_formdata/', apipost_formdata, name='apipost_formdata'),
+    
+    path('format_token/', format_token, name='format_token'),   
+    path('upload_image/', upload_image, name='upload_image'),
+    path('upload_image_multiple/', upload_image_multiple, name='upload_image_multiple'),
+    
     # ///////////////////////////////////////
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

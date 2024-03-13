@@ -1,0 +1,21 @@
+[debug] [2024-01-19T08:41:23.597Z] ----------------------------------------------------------------------
+[debug] [2024-01-19T08:41:23.599Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\PethZero\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2024-01-19T08:41:23.599Z] CLI Version:   13.0.3
+[debug] [2024-01-19T08:41:23.599Z] Platform:      win32
+[debug] [2024-01-19T08:41:23.599Z] Node Version:  v20.10.0
+[debug] [2024-01-19T08:41:23.599Z] Time:          Fri Jan 19 2024 15:41:23 GMT+0700 (เวลาอินโดจีน)
+[debug] [2024-01-19T08:41:23.599Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-01-19T08:41:23.604Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-01-19T08:41:23.604Z] > authorizing via signed-in user (thanadol6@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  D:\PROJECT\Django\Django_New
+
