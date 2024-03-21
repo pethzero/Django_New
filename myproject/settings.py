@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
-    'rest_framework',
+    'rest_framework',  # RestFrameWork
+    'rest_framework.authtoken', 
     'corsheaders',
 ]
 
@@ -74,6 +75,14 @@ TEMPLATES = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # เพิ่มการ Authentication ด้วย Token
+        # 'rest_framework.authentication.BasicAuthentication',  # เพิ่ม Basic Authentication
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # เพิ่ม JWT Authentication
+        # 'rest_framework.schemas.coreapi.AutoSchema',
+    ],
+}
 
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -87,12 +96,13 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
     "Genarate-Django-KEY",
+    "Upload-Memory",
 )
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost",
-#     "http://127.0.0.1"
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+]
 
 
 # CORS_ORIGIN_WHITELIST = [
@@ -124,7 +134,48 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    'mysql-san': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'SAN',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': '192.168.1.205',  # หรือที่อยู่ของ MySQL server
+        'PORT': '33061',        # หรือ port ที่ MySQL server ใช้งาน
+    },
+     'mysql-thai': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'thai',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # หรือที่อยู่ของ MySQL server
+        'PORT': '3306',        # หรือ port ที่ MySQL server ใช้งาน
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            # 'charset': 'utf8mb4',
+            # 'collation': 'utf8mb4_unicode_ci',
+        }
+    },
+     'mysql-test': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # หรือที่อยู่ของ MySQL server
+        'PORT': '3306',        # หรือ port ที่ MySQL server ใช้งาน
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
+        # 'OPTION': {
+        #     # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
+        #     # 'charset': 'utf8mb4',
+        #     # "autocommit": True,
+        # #    'init_command': 'SET default_storage_engine=INNODB',
+        #     #  'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        #     "init_command": "SET default_storage_engine=INNODB",
+        # },
+    },
 }
 
 
@@ -160,6 +211,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+# DATA_UPLOAD_MAX_MEMORY_SIZE = 616448000  # 5 MB 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

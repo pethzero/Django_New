@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieve Data from REST API</title>
+</head>
+<body>
+
+<h1>Data from REST API</h1>
+
+<div id="dataContainer"></div>
+
+<script>
+    // Fetch data from REST API
+    async function fetchData() {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/student_restapi/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // You can add other headers here if needed
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            const data = await response.json();
+            displayData(data);
+        } catch (error) {
+            console.error('Error occurred:', error);
+        }
+    }
+
+    // Display data on the HTML page
+    function displayData(data) {
+        const dataContainer = document.getElementById('dataContainer');
+        dataContainer.innerHTML = ''; // Clear previous data
+
+        data.forEach(item => {
+            const listItem = document.createElement('div');
+            listItem.textContent = `ID: ${item.id}, Name: ${item.name}, Score: ${item.score}, Grade: ${item.grade}`;
+            dataContainer.appendChild(listItem);
+        });
+    }
+
+    // Call fetchData function when the page loads
+    window.onload = fetchData;
+</script>
+
+</body>
+</html>

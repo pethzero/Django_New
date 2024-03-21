@@ -3,3 +3,25 @@ admin
 
 python manage.py makemigrations // เพิ่มข้อมูล ใน # myapp/models.py
 python manage.py migrate
+
+
+pip install mysqlclient
+
+python manage.py inspectdb --database=mysql-test > models.py
+
+ดึงข้อมูลจาก Mysql ที่มี DataBase ใน Setting
+
+All
+python manage.py inspectdb --database=mysql-test  > mysql_models.py
+
+python manage.py inspectdb --database=mysql-test employees > mysql_models.py
+
+python manage.py inspectdb --database=mysql-san  > mysql_models_san.py
+
+
+
+python manage.py inspectdb --database=fdb-test  > firebird_models.py
+
+python manage.py check --database fdb-test
+
+python manage.py inspectdb --database=mysql-thai  > mysql_models_thai.py

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Endpoint Test with Vue.js and Django REST Framework | DH</title>
+</head>
+<body>
+  <div id="app">
+    <h1>Python (DRF) with Vue.js API Test</h1>
+    <button @click="fetchTasks">Fetch Tasks</button>
+   
+    <div v-if="status === 'T'">
+      <ul v-if="tasks.length">
+        <li v-for="task in tasks" :key="task.id">{{ task.name }}</li>
+      </ul>
+    </div>
+    <div  v-else-if="status === 'E'">
+        <p>Error:{{message}}</p>
+        <!-- <b-link href="#foo">Link</b-link> -->
+        <a href="login.html">Google</a>
+    </div>
+
+  </div>
+
+  <!-- Vue.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        tasks: [],
+        status:null,
+        message:null,
+      },
+      methods: {
+        fetchTasks() {
+                const token = localStorage.getItem('token'); // Get token from local storage
+                axios.get("http://127.0.0.1:8000/student_restapi/", {
+                    headers: {
+                        'Authorization': `Token ${token}` // Send token in Authorization header
+                    }
+                })
+                .then((response) => {
+                    this.tasks = response.data;
+                    this.status = 'T';
+                })
+                .catch((error) => {
+                    console.error("Error fetching tasks:", error);
+                    this.status = 'E';
+                    this.message = error.message;
+                });
+            },
+      },
+    });
+  </script>
+</body>
+</html>
