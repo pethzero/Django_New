@@ -1,0 +1,9 @@
+python manage.py shell
+
+from django.contrib.auth.models import User, Group
+
+
+admin_user = User.objects.get(username='admin')
+admin_user.is_superuser = True
+admin_user.is_staff = True
+admin_user.save()

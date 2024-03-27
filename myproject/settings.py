@@ -82,6 +82,13 @@ REST_FRAMEWORK = {
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',  # เพิ่ม JWT Authentication
         # 'rest_framework.schemas.coreapi.AutoSchema',
     ],
+        'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+'DEFAULT_PERMISSION_CLASSES': [
+       'rest_framework.permissions.AllowAny',
+    ],
 }
 
 
@@ -101,7 +108,10 @@ CORS_ALLOW_HEADERS = (
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
+    "http://localhost:3306",
+    "http://localhost:5432",
     "http://127.0.0.1:8000",
+    "http://localhost:4200",
 ]
 
 
@@ -135,6 +145,17 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
+    'mysqltest': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # หรือที่อยู่ของ MySQL server
+        'PORT': '3306',        # หรือ port ที่ MySQL server ใช้งาน
+        'OPTIONS': {
+              'init_command': "SET sql_mode='STRICT_TRANS_TABLES' , default_storage_engine=INNODB",
+        },
+    },
     'mysql-san': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'SAN',
@@ -143,7 +164,7 @@ DATABASES = {
         'HOST': '192.168.1.205',  # หรือที่อยู่ของ MySQL server
         'PORT': '33061',        # หรือ port ที่ MySQL server ใช้งาน
     },
-     'mysql-thai': {
+     'mysqlthai': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'thai',
         'USER': 'root',
@@ -151,31 +172,19 @@ DATABASES = {
         'HOST': 'localhost',  # หรือที่อยู่ของ MySQL server
         'PORT': '3306',        # หรือ port ที่ MySQL server ใช้งาน
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES' , default_storage_engine=INNODB",
             # 'charset': 'utf8mb4',
             # 'collation': 'utf8mb4_unicode_ci',
         }
     },
-     'mysql-test': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test',
-        'USER': 'root',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',  # หรือที่อยู่ของ MySQL server
-        'PORT': '3306',        # หรือ port ที่ MySQL server ใช้งาน
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
-        }
-        # 'OPTION': {
-        #     # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
-        #     # 'charset': 'utf8mb4',
-        #     # "autocommit": True,
-        # #    'init_command': 'SET default_storage_engine=INNODB',
-        #     #  'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        #     "init_command": "SET default_storage_engine=INNODB",
-        # },
-    },
+    'postgres-test': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'test',
+            'USER': 'postgres',
+            'PASSWORD': '1234',
+            'HOST': 'localhost',
+            'PORT': '5432',
+    }
 }
 
 

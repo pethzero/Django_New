@@ -9,6 +9,21 @@ from rest_framework.authtoken.models import Token
 
 from .models import *
 
+
+class MYSQLStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TbStudent
+        fields = '__all__'
+        # fields = ('id', 'name', 'detail','score','tier','filename')
+
+
+
+class MYSQLThaiEmplSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThaiEmpl
+        fields = '__all__'
+        
+
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
@@ -19,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'password']
         extra_kwargs = {'password': {'write_only': True}}  # บอกให้รหัสผ่านไม่ถูกส่งกลับไปใน response
+
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)

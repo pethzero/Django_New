@@ -1,2 +1,23 @@
 # Ignore node_modules directory
+
+# Byte-compiled / optimized Python files
+*.pyc
+*.pyo
+
+# Bytecode cache
+__pycache__/
+
+# Environment variables
 envdjango/
+
+# SQLite database file
+*.sqlite3
+
+# Media files (uploaded by users)
+media/
+
+# Static files
+static/
+
+# Local development settings
+local_settings.py

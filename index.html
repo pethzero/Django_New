@@ -385,9 +385,11 @@
                                 chunk: chunk,
                                 status_write: status_write
                             }),
+
                         });
                         const responseData = await response.json();
                         status_write = responseData.status_write;
+                        console.log(responseData);
                         return responseData; // ส่งข้อมูล response กลับไปให้ Promise.all()
                     });
 

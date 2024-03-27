@@ -7,8 +7,8 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth import authenticate
 from django.core.files.base import ContentFile
 from django.views import View
-
-# from django.utils.encoding import force_text
+from django.db import transaction
+from django.utils.decorators import method_decorator
 
 # Format
 from .forms import *
@@ -31,7 +31,7 @@ from .processdb import *
 
 def index(request):
     # return HttpResponse("Hello, World!")
-    # students = TbStudent.objects.using("mysql-test").all()
+    # students = TbStudent.objects.using("mysqltest").all()
     
 
     # # แสดงผลลัพธ์
@@ -43,12 +43,15 @@ def index(request):
 
 
 def thaiconvert(request):
-    empl_thai = ThaiEmpl.objects.using("mysql-thai").all()
-    empl_thai_old = list(empl_thai.values())
+    empl_thai = ThaiEmpl.objects.using("mysqlthai").all()
+    # empl_thai_old = list(empl_thai.values())
     empl_thai_values = list(empl_thai.values())
-
+    
+    # empl_postgres = PostGresEmpl.objects.using("postgres-test").all()
+    # empl_postgres_values = list(empl_postgres.values())
+    empl_postgres_values = ''
     # print(empl_thai_values)
-    TextConverter.convert_text(empl_thai_values, 'latin-1', 'tis-620')
+    # TextConverter.convert_text(empl_thai_values, 'latin-1', 'tis-620')
     
     # 
     # for employee in empl_thai_values:
@@ -70,7 +73,7 @@ def thaiconvert(request):
             
                     
     # สร้างตัวแปรเพื่อเก็บข้อมูลที่แปลงและ encode เป็นภาษาไทย
-    data = {'message': 'This is a sample JSON response.','data_old':empl_thai_old,'data_convert':empl_thai_values}
+    data = {'message': 'This is a sample JSON response.','data_mysql':empl_thai_values ,'data_postgres': empl_postgres_values}
     return JsonResponse(data)
 
 def sample_json(request):
@@ -108,7 +111,6 @@ def get_api(request):
         result = Student.objects.all().values()
         return JsonResponse(list(result), safe=False)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-from django.db import transaction
 # /////////////////// CREATE ///////////////////
 @csrf_exempt
 def create_api(request):
@@ -116,17 +118,13 @@ def create_api(request):
         try:
             # ดึงข้อมูล JSON ที่ถูกส่งมาจาก Vue.js
             data_from_api = json.loads(request.body.decode('utf-8'))
-            print(data_from_api)
             # ใช้ transaction.atomic เพื่อรับประกันว่าการเพิ่มข้อมูลจะถูก commit ทั้งหมดหรือ rollback ทั้งหมด
             with transaction.atomic():
-                # สร้าง student ใหม่จากข้อมูลที่ได้รับ
                 result = Student.objects.create(
                     name=data_from_api['name'],
                     score=data_from_api['score'],
                     grade=data_from_api['grade']
                 )
-                # (Optional) ทำการประมวลผลเพิ่มเติมหรือทำอย่างอื่น ๆ ที่คุณต้องการ
-            # ส่ง JSON response กลับไปยัง Vue.js
             response_data = {'message': 'Data added successfully'}
             return JsonResponse(response_data)
         except json.JSONDecodeError as e:
@@ -374,9 +372,9 @@ def upload_chunks(request):
             file_name = data_from_api['name']
             chunk_data = data_from_api['chunk']
             status_write = data_from_api['status_write']
-            
             fs = FileSystemStorage(location=settings.MEDIA_ROOT)
             
+            print(status_write)
             if status_write == 'F':
                 with fs.open(file_name, 'wb+') as destination_file:
                     file_binary_data = base64.b64decode(chunk_data)
@@ -435,6 +433,9 @@ class StudentListCreate(generics.ListCreateAPIView):
 class StudentDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    
+    
+    
 
 
 class LoginAPIView(APIView):
@@ -622,10 +623,75 @@ class BookViewset(viewsets.ReadOnlyModelViewSet):
 # ///////////////////////////////////////////////// EX_4_Data /////////////////////////////////////////////////            
 class AuthorModelCreateAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
-
     def post(self, request, *args, **kwargs):
         serializer = AuthorSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+# ////////////////////////////////////////////// RESET FRAMEWORK_MYSQL ////////////////////////////////////////////////////
+#  ListAPIView       // แสดงผล Task ทั้งหมด
+#  CreateAPIview     // สร้าง Task ใหม่
+#  RetrievelAPIview  // แสดงผล Task นั้น ๆ
+#  UpdateAPIview     // อัพเดต Task นั้น ๆ
+#  DeleteAPIview     // ลบ Task นั้น ๆ
+class Mysql_StudentListCreate(generics.ListCreateAPIView):
+    queryset = TbStudent.objects.using("mysqltest").all()
+    serializer_class = MYSQLStudentSerializer
+
+class Mysql_StudentDetailUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TbStudent.objects.using("mysqltest").all()
+    serializer_class = MYSQLStudentSerializer
+
+class MyStudentViewSet(viewsets.ModelViewSet):
+    queryset = TbStudent.objects.using("mysqltest").all()
+    serializer_class = MYSQLStudentSerializer
+    
+
+# /////////////////////////////////////////////////////////////////////  CRUD   /////////////////////////////////////////////////////////////////////
+# /////////////////// READ ///////////////////
+@method_decorator(csrf_exempt, name='dispatch')
+class Crud_student(View):
+    def get(self, request):
+        try:
+            result = TbStudent.objects.using("mysqltest").values()
+            return JsonResponse(list(result), safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    def post(self, request):
+        try:
+            data_from_api = json.loads(request.body.decode('utf-8'))
+            with transaction.atomic():
+                result =  TbStudent.objects.using("mysqltest").create(
+                    name=data_from_api['name'],
+                    detail=data_from_api['detail'],
+                )
+            return JsonResponse({ 'id': result.id, 'name': result.name,'detail':result.detail}, safe=False)  
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+          
+    def put(self, request,id):
+        try:
+            data_from_api = json.loads(request.body)
+            with transaction.atomic():
+                result = TbStudent.objects.using("mysqltest").get(pk=id)
+                result.name = data_from_api['name']
+                result.detail = data_from_api['detail']
+                result.save()
+            return JsonResponse({ 'id': result.id, 'name': result.name,'detail':result.detail}, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    def delete(self, request,id):
+        try:
+            with transaction.atomic():
+                result = TbStudent.objects.using("mysqltest").get(pk=id)
+                result.delete()
+            return JsonResponse({'message': 'This is a Django DELETE View for student with ID {}'.format(id)}, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    

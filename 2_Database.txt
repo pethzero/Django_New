@@ -1,27 +1,141 @@
 admin
 1234
 
+########### Model ###########
 python manage.py makemigrations // เพิ่มข้อมูล ใน # myapp/models.py
 python manage.py migrate
-
-
+python manage.py migrate --run-syncdb 
+#################################
 pip install mysqlclient
 
 python manage.py inspectdb --database=mysql-test > models.py
 
 ดึงข้อมูลจาก Mysql ที่มี DataBase ใน Setting
 
-All
-python manage.py inspectdb --database=mysql-test  > mysql_models.py
 
-python manage.py inspectdb --database=mysql-test employees > mysql_models.py
+########### Check ###########
+
+python manage.py check --database fdb-test
+python manage.py check --database mysqltest
+
+########### Inspectdb ###########
+python manage.py inspectdb --database=mysqltest  > mysql_models.py
+
+python manage.py inspectdb --database=mysqltest employees > mysql_models.py
 
 python manage.py inspectdb --database=mysql-san  > mysql_models_san.py
-
-
 
 python manage.py inspectdb --database=fdb-test  > firebird_models.py
 
 python manage.py check --database fdb-test
 
 python manage.py inspectdb --database=mysql-thai  > mysql_models_thai.py
+
+
+
+
+
+
+
+postgres
+
+PostgreSQL notes¶
+Django supports PostgreSQL 12 and higher. psycopg 3.1.8+ or psycopg2 2.8.4+ is required, though the latest psycopg 3.1.8+ is recommended.
+
+Note
+Support for psycopg2 is likely to be deprecated and removed at some point in the future
+
+pip install psycopg2
+
+OR 
+
+pip install --upgrade pip           # upgrade pip to at least 20.3
+pip install "psycopg[binary]"       # remove [binary] for PyPy
+
+
+python manage.py check --database postgres-test
+
+
+
+python manage.py inspectdb --database postgres-test empl > postgres_models.py
+
+C:\Program Files\PostgreSQL\16\data
+
+setting.py
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "OPTIONS": {
+            "service": "my_service",
+            "passfile": ".my_pgpass",
+        },
+    }
+}
+
+
+   'mysqltest': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # หรือที่อยู่ของ MySQL server
+        'PORT': '3306',        # หรือ port ที่ MySQL server ใช้งาน
+        'OPTIONS': {
+            # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+              'init_command': "SET sql_mode='STRICT_TRANS_TABLES' , default_storage_engine=INNODB",
+        },
+        # 'OPTION': {
+        #     # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
+        #     # 'charset': 'utf8mb4',
+        #     # "autocommit": True,
+        # #    'init_command': 'SET default_storage_engine=INNODB',
+        #     #  'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        #     "init_command": "SET default_storage_engine=INNODB",
+        # },
+    },
+    
+
+.pg_service.conf 
+[my_service]
+host=localhost
+user=USER
+dbname=NAME
+port=5432
+
+.my_pgpass
+localhost:5432:NAME:USER:PASSWORD
+
+
+  'postgresX': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'test',
+        'USER': 'postgres', # not USERNAME, that will cause an error.
+        'PASSWORD': '1234',
+        'HOST':'localhost',
+    }
+
+     'postgresX': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'test',
+            'USER': 'postgres',
+            'PASSWORD': '1324',
+            'HOST': 'localhost',
+            'PORT': '5432',
+    }
+
+
+REVESRE
+python manage.py migrate myapp 0002
+
+Centos7
+rm myapp/migrations/0003_author_book.py
+
+
+del myapp\migrations\0003_author_book.py
+
+del myapp\migrations\0003*.py
+del myapp\migrations\0004*.py
+del myapp\migrations\0005*.py
+del myapp\migrations\0006*.py
+del myapp\migrations\0007*.py
+del myapp\migrations\0008*.py

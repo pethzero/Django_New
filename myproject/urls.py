@@ -27,6 +27,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'author_router', AuthorViewSet, basename='author_router')
 router.register(r'book_router',BookViewset , basename='book_router')
+router.register(r'mysqlstudent_router',MyStudentViewSet , basename='mysqlstudent_router')
 
 urlpatterns = [
      # /////////// TEST /////////
@@ -47,7 +48,14 @@ urlpatterns = [
     path('update_api/<int:result_id>/', update_api, name='update_api'),
     path('delete_api/<int:result_id>/', delete_api, name='delete_api'),
     
+    path('crud_student/', Crud_student.as_view(), name='crud_student_list'),
+    path('crud_student/<int:id>/', Crud_student.as_view(), name='crud_student_detail'),
+        # path('crud_student/<int:pk>/', Crud_student.as_view(), name='crud_student'),
     #/////////// REST FRAMEWORK /////////////
+    path('mysqlstudent/', Mysql_StudentListCreate.as_view(), name='mysql_student-list-create'),
+    path('mysqlstudent/<int:pk>/', Mysql_StudentDetailUpdateDelete.as_view(), name='mysql_student-detail-update-delete'),
+    
+    # //// DB SILTE
     path('student_restapi/', StudentListCreate.as_view(), name='data-list-create'),
     path('student_restapi/<int:pk>/', StudentDetailUpdateDelete.as_view(), name='data-detail-update-delete'),
     path('login/', LoginAPIView.as_view(), name='login'),
