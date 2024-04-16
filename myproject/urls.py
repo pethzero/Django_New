@@ -50,6 +50,11 @@ urlpatterns = [
     
     path('crud_student/', Crud_student.as_view(), name='crud_student_list'),
     path('crud_student/<int:id>/', Crud_student.as_view(), name='crud_student_detail'),
+    
+    path('crud_student/', Crud_student.as_view(), name='crud_student_list'),
+    path('crud_student/<int:id>/', Crud_student.as_view(), name='crud_student_detail'),
+    path('crud_duplicate/', CRUD_DUPLICATE.as_view(), name='crud_duplicate_list'),
+    path('crud_duplicate/<int:id>/', CRUD_DUPLICATE.as_view(), name='crud_duplicate_detail'),
         # path('crud_student/<int:pk>/', Crud_student.as_view(), name='crud_student'),
     #/////////// REST FRAMEWORK /////////////
     path('mysqlstudent/', Mysql_StudentListCreate.as_view(), name='mysql_student-list-create'),
@@ -104,6 +109,8 @@ urlpatterns = [
     path('upload_file/', upload_file, name='upload_file'),
     
     path('restapiupload/', FileUploadView.as_view(), name='file-upload'),
+    
+    
     
     # /////////////////// END ////////////////////
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -665,12 +665,25 @@ class Crud_student(View):
     def post(self, request):
         try:
             data_from_api = json.loads(request.body.decode('utf-8'))
-            with transaction.atomic():
-                result =  TbStudent.objects.using("mysqltest").create(
+            message = ''
+            status = False
+            # with transaction.atomic():
+            #     result =  TbStudent.objects.using("mysqltest").create(
+            #         name=data_from_api['name'],
+            #         detail=data_from_api['detail'],
+            #     )
+            result, created =   TbStudent.objects.using("mysqltest").get_or_create(
                     name=data_from_api['name'],
-                    detail=data_from_api['detail'],
+                    defaults={'detail': data_from_api['detail']}
                 )
-            return JsonResponse({ 'id': result.id, 'name': result.name,'detail':result.detail}, safe=False)  
+            if created:
+                message = "New data created"
+                status = True
+            else:
+                message = "มีข้อมูลของ " + data_from_api['name'] + " ในฐานละ"
+                
+                
+            return JsonResponse({ 'id': result.id, 'name': result.name,'detail':result.detail,'message':message,'status':status}, safe=False)  
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
           
@@ -695,3 +708,68 @@ class Crud_student(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class CRUD_DUPLICATE(View):
+    def get(self, request):
+        try:
+            result = DBMYSQLEmpl.objects.using("mysqltest").values()
+            return JsonResponse(list(result), safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    def post(self, request):
+        try:
+            data_from_api = json.loads(request.body.decode('utf-8'))
+            message = ''
+            with transaction.atomic():
+                if data_from_api['codition'] == 'C1':
+                    result =  DBMYSQLEmpl.objects.using("mysqltest").create(
+                        code=data_from_api['CODE'],
+                        name=data_from_api['NAME'],
+                    )
+                    #  IF Have CODE 'RX0001'  "error": "(1062, \"Duplicate entry 'RX0001' for key 'code_unique'\")"
+                elif data_from_api['codition'] == 'C2':
+                    result, created =   DBMYSQLEmpl.objects.using("mysqltest").get_or_create(
+                        code=data_from_api['CODE'],
+                        defaults={'name': data_from_api['NAME']}
+                    )
+                    if created:
+                        message = "New data created"
+                    else:
+                        message = "Data already existed and updated"
+                else:
+                    result, created =   DBMYSQLEmpl.objects.using("mysqltest").update_or_create(
+                        code=data_from_api['CODE'],
+                        defaults={'name': data_from_api['NAME']}
+                    )
+                    if created:
+                        message = "New data created"
+                    else:
+                        message = "Data already existed and name updated"
+                    
+                
+            return JsonResponse({ 'id': result.id,'code':result.code, 'name': result.name,'message':message}, safe=False)  
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+          
+    def put(self, request,id):
+        try:
+            data_from_api = json.loads(request.body)
+            with transaction.atomic():
+                result = DBMYSQLEmpl.objects.using("mysqltest").get(pk=id)
+                result.code = data_from_api['code']
+                result.name = data_from_api['name']
+                result.save()
+            return JsonResponse({ 'id': result.id,'code':result.code, 'name': result.name}, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    def delete(self, request,id):
+        try:
+            with transaction.atomic():
+                result = DBMYSQLEmpl.objects.using("mysqltest").get(pk=id)
+                result.delete()
+            return JsonResponse({'message': 'This is a Django DELETE View for student with ID {}'.format(id)}, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

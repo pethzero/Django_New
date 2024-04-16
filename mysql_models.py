@@ -65,6 +65,16 @@ class Bomproc(models.Model):
         unique_together = (('parentproductid', 'componentproductid'),)
 
 
+class Empl(models.Model):
+    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    code = models.CharField(db_column='CODE', unique=True, max_length=16, blank=True, null=True)  # Field name made lowercase.
+    name = models.CharField(db_column='NAME', max_length=80, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'empl'
+
+
 class Employees(models.Model):
     name = models.CharField(max_length=100)
     score = models.FloatField()
@@ -98,6 +108,7 @@ class Student(models.Model):
 
 
 class Students(models.Model):
+    idc = models.CharField(max_length=13, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     detail = models.CharField(max_length=255, blank=True, null=True)
     score = models.IntegerField(blank=True, null=True)
@@ -107,6 +118,16 @@ class Students(models.Model):
     class Meta:
         managed = False
         db_table = 'students'
+
+
+class T1(models.Model):
+    a = models.IntegerField(unique=True, blank=True, null=True)
+    b = models.IntegerField(unique=True, blank=True, null=True)
+    c = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 't1'
 
 
 class TblCounter(models.Model):
