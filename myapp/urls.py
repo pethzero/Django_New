@@ -21,7 +21,8 @@ from myapp.controllers import fuc
 urlpatterns = [
     path('hello_world', fuc.index),
     path('crud_student/', fuc.Crud_student.as_view()),    
-    path('crud_student/<int:id>/', fuc.Crud_student.as_view()),       
+    path('crud_student/<int:id>/', fuc.Crud_student.as_view()), 
+    path('upload', fuc.example_upload),         
     
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
