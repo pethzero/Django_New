@@ -6,7 +6,11 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
+import os
+from django.conf import settings
 
+# 
+# from pyrfc import Connection
 
 class OverwriteStorage(FileSystemStorage):
     """Custom storage class to overwrite files with the same name."""
@@ -167,8 +171,7 @@ class ErrorLogger:
             log.write(log_entry)
             
             
-import os
-from django.conf import settings
+
 
 class FileDirectoryManager:
     """Class to manage file operations in a directory."""
@@ -251,3 +254,15 @@ class FileDirectoryManager:
         
         except Exception as e:
             return {"status": False, "message": str(e)}
+
+
+def connect_bapi(ntype=''):
+    if(ntype=='N-1'):
+        conn = Connection(user='sapconnect', passwd='lotus900', ashost= settings.IP_SAP_TEST, sysnr='00', client='100')
+    elif (ntype=='PROD'):
+        conn = Connection(user='sapconnect', passwd='lotus900', ashost= '192.168.0.7', sysnr='00', client='100')
+    elif (ntype=='DEV'):
+        conn = Connection(user='powfrfc', passwd='Mis1711!', ashost= '192.168.2.7', sysnr='00', client='302')
+    else:
+        conn = Connection(user='sapconnect', passwd='lotus900', ashost= settings.IP_SAP, sysnr='00', client='100')
+    return conn

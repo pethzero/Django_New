@@ -25,7 +25,11 @@ urlpatterns = [
     path('upload', fuc.example_upload),
     path('upload_m', fuc.upload_multiple),
     path('log_error', fuc.example_error),    
-    path('test', fuc.api_test,name='test'),    
+    path('test', fuc.api_test,name='test'), 
+    path('api_test_db', fuc.api_test_db,name='test_db'),  
+    path('api_test_bapi', fuc.api_test_bapi,name='test_bapi'),  
+       
+     
     
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

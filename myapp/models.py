@@ -75,3 +75,19 @@ class TbStudent(models.Model):
 #     class Meta:
 #         managed = False
 #         db_table = 'empl'
+
+class ZTestMain(models.Model):
+    desciption = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'z_test_main'
+
+
+class ZTestDetail(models.Model):
+    desciption = models.CharField(max_length=255, blank=True, null=True)
+    main_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'z_test_detail'

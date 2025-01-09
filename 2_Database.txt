@@ -32,6 +32,7 @@ python manage.py check --database fdb-test
 python manage.py inspectdb --database=mysql-thai  > mysql_models_thai.py
 
 
+python manage.py inspectdb --database=mysqltest ztestmain > mysql_models.py
 
 
 

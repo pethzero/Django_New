@@ -2,7 +2,9 @@
 from datetime import datetime
 import os
 import sys
-from myapp.controllers.lib import zxlib
+from myapp.assist import libs
+from myapp.assist import database as SYSDB
+from myapp.assist import bapi as SYSBAPI
 from django.http import HttpResponse,JsonResponse, HttpResponseNotFound, HttpResponseRedirect,HttpResponseBadRequest, Http404,HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect ,get_object_or_404
@@ -31,6 +33,8 @@ import base64
 import codecs
 from ..processdb import *
 from django.core.files.storage import FileSystemStorage
+
+
 
 def index(request):
     print('55')
@@ -126,9 +130,9 @@ def example_upload(request):
             upload_file_temp = request.POST.get('mode', '')
             upload_mode =   int(request.POST.get('mode', ''))  # Mode: 1 (SAVE), 2 (EDIT), 3 (DELETE)
             current_time = datetime.now()  # Get the current date and time
-            name_custom = zxlib.generate_datetime_string(current_time, 'upload')
+            name_custom = libs.generate_datetime_string(current_time, 'upload')
 
-            file_manager = zxlib.FileUploadManager(
+            file_manager = libs.FileUploadManager(
                 file_name_custom=name_custom,
                 log_mode=log_mode  # ส่ง log_mode เข้าไป
             )
@@ -190,9 +194,9 @@ def upload_multiple(request):
             list_path = ['uploads', 'user_files']  # Path to store files
             upload_mode = int(request.POST.get('mode', 1))  # Mode: 1 (SAVE), 2 (EDIT), 3 (DELETE)
             current_time = datetime.now()  # Get the current date and time
-            name_custom = zxlib.generate_datetime_string(current_time, 'upload')
+            name_custom = libs.generate_datetime_string(current_time, 'upload')
 
-            file_manager = zxlib.FileUploadManager(
+            file_manager = libs.FileUploadManager(
                 file_name_custom=name_custom,
                 log_mode=log_mode  # ส่ง log_mode เข้าไป
             )
@@ -234,7 +238,9 @@ def upload_multiple(request):
     return JsonResponse(result, safe=False)
 
 
-
+# curl --location 'http://127.0.0.1:8000/myapp/log_error' \
+# --header 'Content-Type: application/json' \
+# --data '{"key1": "value1", "key2": "value2"}'
 @csrf_exempt
 def example_error(request):
     if request.method == 'POST':
@@ -249,7 +255,7 @@ def example_error(request):
 
         except Exception as e:
             # Log the error
-            error_logger = zxlib.ErrorLogger()
+            error_logger = libs.ErrorLogger()
             error_logger.log_error(f"Error occurred: {str(e)}")
             
             # Return an error response
@@ -266,26 +272,111 @@ def api_test(request):
             # แปลง JSON payload
             data = json.loads(request.body.decode('utf-8'))
             # TEST FUCTION
-            
+            ##################################### FOLDER ##################################### 
             list_path = ['uploads', 'user_files']
-            manager = zxlib.FileDirectoryManager()
+            manager = libs.FileDirectoryManager()
             # 1. List files in directory
             print(manager.list_files_in_directory(list_path))
 
-            # # 2. Check missing files
-            # print(manager.missing_files(list_path, ['file1.txt', 'file2.txt']))
+            # 2. Check missing files
+            print(manager.missing_files(list_path, ['file1.txt', 'file2.txt']))
 
-            # # 3. Check if all files exist
-            # print(manager.all_files_exist(list_path, ['file1.txt', 'file2.txt']))
+            # 3. Check if all files exist
+            print(manager.all_files_exist(list_path, ['file1.txt', 'file2.txt']))
 
-            # # 4. Add a new file
-            # print(manager.add_file(list_path, 'test_file.txt', 'Hello World'))
+            # 4. Add a new file
+            print(manager.add_file(list_path, 'test_file.txt', 'Hello World'))
 
-            # # 5. Delete a file
-            # print(manager.delete_file(list_path, 'test_file.txt'))
-            # print(result)
+            # 5. Delete a file
+            print(manager.delete_file(list_path, 'test_file.txt'))
+            ###################################################################################
+            print('SS')
+            # ประมวลผลข้อมูล
+            processed_data = {"processed": True, "original_data": data}
+            return JsonResponse({ "status": True, "message": "Data processed successfully.", "data": processed_data }, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({ "status": False, "message": "Invalid JSON format." }, status=400)
+        except Exception as e:
+            return JsonResponse({ "status": False, "message": str(e) }, status=500)
+    else:
+        return JsonResponse({ "status": False, "message": "Only POST requests are allowed." }, status=405)
+
+
+
+# POSTMAN
+# curl --location 'http://127.0.0.1:8000/myapp/test_db' \
+# --header 'Content-Type: application/json' \
+# --data '{"key1": "value1", "key2": "value2"}'
+@csrf_exempt
+def api_test_db(request):
+    if request.method == 'POST':
+        try:
+            # แปลง JSON payload
+            data = json.loads(request.body.decode('utf-8'))
+            ##################################### DATABASE ROLLBACK #####################################
+            SYS_DB = SYSDB.Process()
             
+            DBNAME = 'DataMain'
+            ENGINE = 'mysqltest'
+            param = {'desciption':'Detail'}
             
+            result = SYS_DB.DBcreate(param, DBNAME, ENGINE)
+            if result['status']:
+                result.commit(ENGINE)  # Commit transaction
+            else:
+                result.rollback(ENGINE)  # Rollback transaction
+            ###################################################################################
+            
+            print('SS')
+            # ประมวลผลข้อมูล
+            processed_data = {"processed": True, "original_data": data}
+            return JsonResponse({ "status": True, "message": "Data processed successfully.", "data": processed_data }, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({ "status": False, "message": "Invalid JSON format." }, status=400)
+        except Exception as e:
+            return JsonResponse({ "status": False, "message": str(e) }, status=500)
+    else:
+        return JsonResponse({ "status": False, "message": "Only POST requests are allowed." }, status=405)
+
+
+
+@csrf_exempt
+def api_test_bapi(request):
+    if request.method == 'POST':
+        try:
+            # แปลง JSON payload
+            data = json.loads(request.body.decode('utf-8'))
+            ##################################### BAPI TEST #####################################
+            mode = '12' # 1 คือ จำลองแบบธรรมดา  // !1 คือมีการทำแบบส่งไปนอก class เพื่อไม่ให้เกิดการ execpt 
+            if mode == '1':
+                # แบบ ธรรมดา จำลองเห็นการ
+                conn = libs.connect_bapi('N-1')
+                # เสมือนว่าส่งค่า ฟังก์ชั่น 1
+                sap_result = conn.call('ZMES_GET_NON_WORKING_DAY', )
+                print(sap_result) # เสมือนว่าส่งค่า ฟังก์ชั่น 1 เสร็จสมบรณ์
+                sap_result2 = conn.call('ZMES_GET_NON_WORKING_DAY', I_IDENT='TH', I_JAHR=2024)
+                print(sap_result2) # เสมือนว่าส่งค่า ฟังก์ชั่น 2  เกิด error
+                conn.close()
+                
+                # เสมือนว่าส่งค่าของฟังก์ชั่น 2 เกิดปัญหา แต่เราต้องการ ส่งค่าทั้ง 1 และ 2  กลับไป 
+                # ถึงแม้จะมี error เพื่อนำข้อมูล 2 ฟั่งชั่น save ลง database เก็บ transaction
+                # database save() ก้อน sap_result ก้อน sap_result2
+            else:
+                # ตัวอยากของการส่งของมูล
+                conn = libs.connect_bapi('N-1')
+                API_SAP = SYSBAPI.Process(conn)
+                param = {'I_IDENT':'TH', 'I_JAHR':'2024'} #ปรับถูกปรับในรูปแบบ Dictionaries
+                fuc_name = 'ZMES_GET_NON_WORKING_DAY'
+                sap_result = API_SAP.bapi_process(fuc_name,param)
+                print(sap_result)
+                
+                param = {'I_IDENT':'TH', 'I_JAHR':2024} # ปรับถูกปรับในรูปแบบ Dictionaries
+                sap_result2 = API_SAP.bapi_process(fuc_name,param)
+                print(sap_result2) # {'log': '0000EX', 'status': 'err', 'message': "An error occurred: 'int' object has no attribute 'encode'", 'result': None}
+                conn.close()
+            ###################################################################################
+            
+            print('SS')
             # ประมวลผลข้อมูล
             processed_data = {"processed": True, "original_data": data}
             return JsonResponse({ "status": True, "message": "Data processed successfully.", "data": processed_data }, status=200)
